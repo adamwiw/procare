@@ -15,7 +15,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AUTH_URL="${PROCARE_AUTH_URL:-https://online-auth.procareconnect.com/sessions/}"
 PHOTOS_URL="${PROCARE_PHOTOS_URL:-https://api-school.procareconnect.com/api/web/parent/photos/}"
 OUTPUT_DIR="${PROCARE_OUTPUT_DIR:-./photos}"
-CONFIG_FILE="${PROCARE_CONFIG_FILE:-.procare_config}"
 
 # Source library files
 source "$SCRIPT_DIR/lib/utils.sh"

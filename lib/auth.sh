@@ -16,30 +16,10 @@ load_credentials() {
         return 0
     fi
     
-    # Check config file
-    if [ -f "$CONFIG_FILE" ]; then
-        source "$CONFIG_FILE"
-        if [ -n "$PROCARE_EMAIL" ] && [ -n "$PROCARE_PASSWORD" ]; then
-            log info "Using credentials from config file"
-            return 0
-        fi
-    fi
-    
-    # Prompt for credentials if not found
-    log warn "No credentials found in environment or config file"
-    read -p "Enter ProCare email: " email
-    read -s -p "Enter ProCare password: " password
-    echo
-    
-    # Save credentials
-    cat > "$CONFIG_FILE" << EOF
-PROCARE_EMAIL="$email"
-PROCARE_PASSWORD="$password"
-EOF
-    chmod 600 "$CONFIG_FILE"
-    
-    PROCARE_EMAIL="$email"
-    PROCARE_PASSWORD="$password"
+    # Fail if no credentials found
+    log error "PROCARE_EMAIL and PROCARE_PASSWORD environment variables not set"
+    log error "Create a .env file or set environment variables"
+    exit 1
 }
 
 # Authenticate and get bearer token

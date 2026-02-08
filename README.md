@@ -111,7 +111,6 @@ The following environment variables can be set to override defaults:
 | `PROCARE_AUTH_URL` | `https://online-auth.procareconnect.com/sessions/` | Authentication endpoint |
 | `PROCARE_PHOTOS_URL` | `https://api-school.procareconnect.com/api/web/parent/photos/` | Photos API endpoint |
 | `PROCARE_OUTPUT_DIR` | `./photos` | Where to save downloaded photos |
-| `PROCARE_CONFIG_FILE` | `.procare_config` | Where to store credentials |
 
 ### Credential Priority
 

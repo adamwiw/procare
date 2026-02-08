@@ -20,7 +20,6 @@ RUN mkdir -p /app/photos
 ENV PROCARE_AUTH_URL=https://online-auth.procareconnect.com/sessions/
 ENV PROCARE_PHOTOS_URL=https://api-school.procareconnect.com/api/web/parent/photos/
 ENV PROCARE_OUTPUT_DIR=/app/photos
-ENV PROCARE_CONFIG_FILE=/app/.procare_config
 
 # Set default command
 CMD ["/bin/bash"]
