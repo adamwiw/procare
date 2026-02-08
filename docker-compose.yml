@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  scraper:
+    build: .
+    image: procare-scraper:latest
+    volumes:
+      - ./photos:/app/photos
+      - ./.procare_config:/app/.procare_config
+    # Environment variables - can also use .env file
+    environment:
+      # Credentials (recommended to use .env file instead)
+      - PROCARE_EMAIL=${PROCARE_EMAIL:-}
+      - PROCARE_PASSWORD=${PROCARE_PASSWORD:-}
+      # Optional: Override API endpoints
+      # - PROCARE_AUTH_URL=https://online-auth.procareconnect.com/sessions/
+      # - PROCARE_PHOTOS_URL=https://api-school.procareconnect.com/api/web/parent/photos/
+      # - PROCARE_OUTPUT_DIR=/app/photos
+    # Default command - override with docker-compose run
+    command: /app/procare-scraper.sh today

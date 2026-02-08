@@ -1,0 +1,13 @@
+# ProCare credentials
+.procare_config
+.env
+
+# Downloaded photos
+photos/
+
+# Logs
+*.log
+cron.log
+
+# OS files
+.DS_Store
