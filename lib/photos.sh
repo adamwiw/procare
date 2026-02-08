@@ -25,9 +25,8 @@ fetch_photos() {
         return 1
     fi
     
-    # Save the response for debugging
+    # Create output directory
     mkdir -p "$output_subdir"
-    echo "$body" > "$output_subdir/photos_page_${page}.json"
     
     # Check if there are more pages
     local next_page=$(echo "$body" | grep -o '"next_page":[0-9]*' | cut -d':' -f2)
