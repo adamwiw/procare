@@ -160,12 +160,27 @@ scrape_historical() {
     
     log info "Scraping photos from $date_from to $date_to"
     
-    # Convert dates to seconds for iteration
-    local current_date=$(date -j -f "%Y-%m-%d" "$date_from" +%s)
-    local end_date=$(date -j -f "%Y-%m-%d" "$date_to" +%s)
+    # Convert dates to seconds for iteration (macOS vs Linux compatibility)
+    local current_date end_date
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        current_date=$(date -j -f "%Y-%m-%d" "$date_from" +%s)
+        end_date=$(date -j -f "%Y-%m-%d" "$date_to" +%s)
+    else
+        # Linux
+        current_date=$(date -d "$date_from" +%s)
+        end_date=$(date -d "$date_to" +%s)
+    fi
     
     while [ "$current_date" -le "$end_date" ]; do
-        local date_str=$(date -r "$current_date" +"%Y-%m-%d")
+        local date_str
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS
+            date_str=$(date -r "$current_date" +"%Y-%m-%d")
+        else
+            # Linux
+            date_str=$(date -d "@$current_date" +"%Y-%m-%d")
+        fi
         local output_subdir="$OUTPUT_DIR/$date_str"
         
         log info "Processing date: $date_str"
