@@ -28,6 +28,10 @@ fetch_photos() {
     # Create output directory
     mkdir -p "$output_subdir"
     
+    # Save response for jq processing
+    local json_file="$output_subdir/photos_page_${page}.json"
+    echo "$body" > "$json_file"
+    
     # Check if there are more pages
     local next_page=$(echo "$body" | grep -o '"next_page":[0-9]*' | cut -d':' -f2)
     
