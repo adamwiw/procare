@@ -42,20 +42,22 @@ fetch_photos() {
 download_photo() {
     local photo_url=$1
     local output_path=$2
-    local caption=$3
+    local photo_date=$3
     local photo_id=$4
     
     local filename
     
-    if [ -n "$caption" ] && [ "$caption" != "null" ]; then
-        # Use caption as filename, sanitize it
-        # Remove special characters, replace spaces/newlines with underscores
-        filename=$(echo "$caption" | sed 's/[^a-zA-Z0-9 ]//g' | tr '[:upper:]' '[:lower:]' | tr ' ' '_' | tr -s '_' | sed 's/^_//;s/_$//')
-        if [ -z "$filename" ]; then
-            filename="${photo_id}.jpg"
-        else
-            filename="${filename}.jpg"
-        fi
+    if [ -n "$photo_date" ] && [ "$photo_date" != "null" ]; then
+        # Parse date from API format: 2026-02-03T16:42:32.747-06:00
+        # Format as: yyyymmdd_hhmmss.jpg
+        local year=$(echo "$photo_date" | cut -dT -f1 | cut -d- -f1)
+        local month=$(echo "$photo_date" | cut -dT -f1 | cut -d- -f2)
+        local day=$(echo "$photo_date" | cut -dT -f1 | cut -d- -f3)
+        local time=$(echo "$photo_date" | cut -dT -f2 | cut -d. -f1)
+        local hour=$(echo "$time" | cut -d: -f1)
+        local minute=$(echo "$time" | cut -d: -f2)
+        local second=$(echo "$time" | cut -d: -f3)
+        filename="${year}${month}${day}_${hour}${minute}${second}.jpg"
     elif [ -n "$photo_id" ]; then
         filename="${photo_id}.jpg"
     else
@@ -85,9 +87,9 @@ process_photos() {
     local json_file=$1
     local output_dir=$2
     
-    # Extract photo URLs and captions from JSON response
-    # The API returns: { "photos": [ { "id": "...", "caption": "...", "main_url": "..." } ] }
-    # We'll use main_url for highest quality and caption for filename
+    # Extract photo URLs and dates from JSON response
+    # The API returns: { "photos": [ { "id": "...", "date": "...", "main_url": "..." } ] }
+    # We'll use main_url for highest quality and date for filename
     
     # Check if jq is available for proper JSON parsing
     if command -v jq &> /dev/null; then
@@ -95,12 +97,12 @@ process_photos() {
         local count=0
         while IFS= read -r line; do
             local url=$(echo "$line" | cut -d'|' -f1)
-            local caption=$(echo "$line" | cut -d'|' -f2)
+            local photo_date=$(echo "$line" | cut -d'|' -f2)
             local id=$(echo "$line" | cut -d'|' -f3)
             
-            download_photo "$url" "$output_dir" "$caption" "$id"
+            download_photo "$url" "$output_dir" "$photo_date" "$id"
             ((count++))
-        done < <(jq -r '.photos[] | "\(.main_url)|\(.caption // "")|\(.id)"' "$json_file")
+        done < <(jq -r '.photos[] | "\(.main_url)|\(.date // "")|\(.id)"' "$json_file")
         
         log info "Downloaded $count photo(s)"
         return
@@ -108,6 +110,7 @@ process_photos() {
     
     # Fallback: grep-based extraction (less reliable)
     local photo_urls=$(cat "$json_file" | grep -o '"main_url":"[^"]*"' | cut -d'"' -f4)
+    local photo_dates=$(cat "$json_file" | grep -o '"date":"[^"]*"' | cut -d'"' -f4)
     local photo_ids=$(cat "$json_file" | grep -o '"id":"[^"]*"' | cut -d'"' -f4)
     
     if [ -z "$photo_urls" ]; then
@@ -118,8 +121,9 @@ process_photos() {
     local count=0
     local index=0
     for url in $photo_urls; do
+        local date=$(echo "$photo_dates" | sed -n "$((index + 1))p")
         local id=$(echo "$photo_ids" | sed -n "$((index + 1))p")
-        download_photo "$url" "$output_dir" "" "$id"
+        download_photo "$url" "$output_dir" "$date" "$id"
         ((count++))
         ((index++))
     done
